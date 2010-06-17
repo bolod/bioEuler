@@ -1,4 +1,4 @@
-"""BioEuler Project
+""" BioEuler Project
 
  This program does the following things:
  - asks two protein's code and two colors as input
@@ -14,13 +14,15 @@ import xml.etree.ElementTree as ET
 from numpy import *
 from pyplasm import *
 import urllib, os
+from Bio import PDB as biopdb
 
-symbol_to_mass = { 
+symbol_to_mass = {
     'C': 12.0107,
     'N': 14.0067,
     'O': 15.99994,
     'S': 32.065,
-    'H': 1.00794 
+    'H': 1.00794,
+    'P': 30.973761
 }
 
 symbol_to_radius = {
@@ -28,7 +30,8 @@ symbol_to_radius = {
     'N': 0.65,
     'O': 0.60,
     'S': 1.00,
-    'H': 0.25
+    'H': 0.25,
+    'P': 1.00
 }
 
 colors = {
@@ -39,8 +42,9 @@ colors = {
 }
 
 max_level = 5
-
-threshold = 200000
+max_size_rate = 10
+min_size = 10
+max_euler_distance = 200000
 
 class Atom():
     def __init__(self, symbol, label, coords):
@@ -181,6 +185,18 @@ class Atom():
 
         """
         return self.symbol
+    
+    def get_label(self):
+        """
+        Gets the label of this atom.
+    
+        Returns
+        -------
+        label : String
+            symbol of this atom
+
+        """
+        return self.label
 
     def cube(self, size, color):
         """
@@ -199,12 +215,111 @@ class Atom():
 
         """
         return COLOR(color)(T([1,2,3])(self.coords)(CUBOID([size, size, size])))
+        
+    def get_euclid_distance_to(self, atom):
+        return sqrt(sum((self.get_coords()-atom.get_coords())**2, axis = 0))
 
 class AtomList():
-    def __init__(self, atom_list=[]):
+    def __init__(self, atom_list=[], name=''):
         self.list = atom_list
+        self.name = name
+
+    def get_name(self):
+        """
+        Gets the name of this atom list.
+        
+        Returns
+        -------
+        name : String
+            name of this atom list
+        
+        """
+        return self.name
+
+    def get_atom_list(self):
+        """
+        Gets the atom list.
+        
+        Returns
+        -------
+        list : list of Atom
+            the atom list
+        
+        """
+        return self.list
+
+    def set_name(self, name):
+        """
+        Sets the name of this atom list.
+        
+        Patameters
+        ----------
+        name : String
+            name of this atom list
+            
+        Returns
+        -------
+        self : AtomList
+            this atom list
+            
+        """
+        self.name = name
+        return self
+
+    def set_atom_list(self, atom_list):
+        """
+        Sets the name of this atom list.
+        
+        Patameters
+        ----------
+        list : list of Atom
+            the atom list
+            
+        Returns
+        -------
+        self : AtomList
+            this atom list
+            
+        """
+        self.list = atom_list
+        return self
+
+    def print_info(self):
+        """
+        Prints info of this atom list.
+        
+        Returns
+        -------
+        self : AtomList
+            this atom list
+            
+        """
+        print ''
+        print 'name: ' , self.name
+        print 'n atoms: ' , len(self.list)
+        print 'backbone n atoms: ' , self.get_backbone_size()
+        print 'mass center: ' , self.get_masscenter()
+        print 'centroid: ' , self.get_centroid()
+        print 'euler: '
+        print str(self.get_euler())
+        print ''
+        return self
+
+    def clone(self):
+        """
+        Clones this atom list.
+        
+        Returns
+        -------
+        clone : AtomList
+            the clone of this atom list
+            
+        """
+        clone = AtomList()
+        clone.list = self.list[:]
+        return clone
     
-    def add_atom(self, atom):
+    def add_atom(self, atom): 
         """
         Adds the given atom to this atom list.
 
@@ -295,7 +410,7 @@ class AtomList():
         
         """
 
-        return sum([ atom.get_coords() for atom in self.list]) / self.get_n_atoms()
+        return sum([ atom.get_coords() for atom in self.list]) / self.get_size()
     
     def get_euler(self):
         """
@@ -309,17 +424,41 @@ class AtomList():
         """
         return array(sum([ atom.get_euler() for atom in self.list ], axis=0)) / self.get_mass()
 
-    def get_n_atoms(self):
+    def get_size(self):
         """
         Gets the number of atoms of this atom list.
         
         Returns
         -------
-        n_atoms : ndarray, shape(3, 3)
+        size : ndarray, shape(3, 3)
             number of atoms of this atom list
         
         """
         return len(self.list)
+
+    def get_backbone(self):
+        """
+        Get a list of Atoms representing the backbone (N-Ca-C)
+        of the protein represented by this AtomList
+        
+        Returns
+        -------
+        backbone : [Atom, Atom, Atom] list
+            
+        """
+        return [[self.list[self.list.index(atom)-1], atom, self.list[self.list.index(atom)+1]] for atom in self.list if atom.get_label() == 'CA']
+
+    def get_backbone_size(self):
+        """
+        Gets the number of backbone atoms of this atom list.
+        
+        Returns
+        -------
+        size : ndarray, shape(3, 3)
+            number of backbone atoms of this atom list
+        
+        """
+        return len(self.get_backbone()) * 3
 
     def get_principal_axis(self):
         """
@@ -350,11 +489,7 @@ class AtomList():
         princ_axis = transpose(ord_eigenvectors)
 
         return princ_axis
-
-    def ellipsoid(self, color):
-        dim = linalg.eigvals(self.get_euler())
-        return COLOR(color)(S([1,2,3])(dim)(SPHERE(1)([12,24])))
-
+    
     def align(self):
         """
         Align this atom list by its principal axis.
@@ -393,7 +528,7 @@ class AtomList():
 
     def ellipsoid(self, color):
         """
-        Create a PLaSM ellipsoid.
+        Create a PLaSM ellipsoid of this atom list.
         
         Parameters
         ----------
@@ -409,6 +544,35 @@ class AtomList():
 
         return COLOR(color)(S([1,2,3])(max_xyz * 1.4)(SPHERE(1)([16,16])))
 
+    def convex_hull(self, color): 
+        """
+        Create a PLaSM convex hull of this atom list.
+        
+        Parameters
+        ----------
+        color : integer
+            number of the color in the dictionary "colors"
+             
+        Returns
+        -------
+        convex_hull : colored PLaSM ellipsoid
+        
+        """
+        return COLOR(color)(JOIN(self.cube_list(0.1, color)))
+
+    def get_ellipsoid_axis(self):
+        """
+        Get ellipsoid axis.
+                     
+        Returns
+        -------
+        axis : ndarray, shape(3, )
+            ellipsoid axis
+        
+        """
+        max_xyz = (abs(array([ atom.get_coords() for atom in self.list ]))).max(axis=0)
+        return max_xyz
+
     def split_z(self):
         """
         Splits this atom list in two atom lists by omogeneous plane XY.
@@ -421,8 +585,8 @@ class AtomList():
 
         """
         return (
-            AtomList([ atom for atom in self.list if atom.get_z() >= 0 ]),
-            AtomList([ atom for atom in self.list if atom.get_z() < 0 ]))
+            AtomList([ atom for atom in self.list if atom.get_z() >= 0 ], self.name),
+            AtomList([ atom for atom in self.list if atom.get_z() < 0 ], self.name))
 
     def get_euler_distance(self, atom_list):
         """
@@ -436,7 +600,7 @@ class AtomList():
           
         Returns
         -------
-        distance : float
+        float
             the distance of the Euler tensor's diagonals of the atom lists
          
         """
@@ -454,23 +618,41 @@ class AtomList():
         to make a structural alignment by principal axis.
         
         """
-    
-        q = [[self, atom_list, 0]]
+        def size_rate_test(a, b):
+            a_size = a.get_size()
+            b_size = b.get_size()
+            size_rate = max(a_size, a_size) / min(a_size, a_size)
+            print 'size rate: ', size_rate
+            return size_rate < max_size_rate
 
+        def size_test(a, b):
+            a_size = a.get_size()
+            b_size = b.get_size()
+            return a_size > min_size and b_size > min_size
+
+        def euler_distance_test(a, b):
+            distance = a.get_euler_distance(b)
+            print 'distance: ', distance
+            return distance < max_euler_distance
+
+        def level_test(level):
+            print 'level: ', level
+            return level <= max_level
+        
+        if not(size_rate_test(self, atom_list)):
+            return 0
+
+        q = [[self, atom_list, 0]]
         while q:
             a, b, level = q.pop(0)
-
-            if level < max_level and a.get_n_atoms() > 0 and b.get_n_atoms() > 0:
-                print 'level ' + str(level)
-                a.align()
-                b.align()
-
-                if a.get_euler_distance(b) < threshold:
-                    a1, a2 = a.split_z()
-                    b1, b2 = b.split_z()
-                    q.extend([[a1,b1,level+1], [a2,b2,level+1]])
-                else:
-                    return level
+            a.align()
+            b.align()
+            if level_test(level) and size_test(a, b) and euler_distance_test(a, b) :
+                a1, a2 = a.split_z()
+                b1, b2 = b.split_z()
+                q.extend([[a1, b1, level+1], [a2, b2, level+1]])
+            else:
+                return level
 
         return level
 
@@ -487,7 +669,68 @@ class AtomList():
         self.list = [ atom for atom in self.list if atom.get_symbol() in symbol_list ]
         return self
 
+    def filter_by_label(self, label_list):
+        """
+        Filter this atom list by atom label.
+
+        Returns
+        -------
+        self : AtomList
+            this atom list filtered
+
+        """
+        self.list = [ atom for atom in self.list if atom.get_label() in label_list ]
+        return self
+
+    def get_minmax_ca_distance(self):
+        """
+	Return a max and min value of distance between two consecutive Ca atom.
+
+	Returns
+	-------
+	manmax: (min, max)
+            min, min distance between two consecutive Ca atoms
+            max, max distance between two consecutive Ca atoms		  
+        """
+        ca_list = self.clone().filter_by_label("CA")
+        indices_list = zip(range(ca_list.get_size() - 1), range(1, ca_list.get_size()))
+        diff = [ca_list.list[i1].get_euclid_distance_to(ca_list.list[i2])  for (i1,i2) in indices_list]
+        return (min(diff), max(diff))
+
+
 class PDB:
+
+    def get_atom_list_from_PDB(self, file_name):
+        """
+	Parses a PDF file of protein and create an atomList object.
+	
+	Parameters
+	----------
+	filename : string
+            pdb file name to parse
+	
+	Returns
+	-------
+	atom_list : AtomList
+
+	"""
+        parser = biopdb.PDBParser()
+        structure = parser.get_structure("test", file_name)
+        model = structure[0]
+        atom_list = AtomList([], file_name[:3])
+
+        for chain in model.get_list():
+            for residue in chain.get_list():
+                for atom in residue.get_list():
+                    label = atom.get_name()
+                    symbol = label[0]
+                    coords = atom.get_coord()
+                    atom = Atom(symbol, label, coords)
+                    atom_list.add_atom(atom)
+	
+        return atom_list
+
+    
     def get_file(self, name, ext):
         """
         Downloads the corresponding file of protein's code.
@@ -541,17 +784,19 @@ class PDB:
         search_string = ".//%satom_site" % namespace
         node_list = tree.findall(search_string)
 
-        atom_list = AtomList()
+        atom_list = AtomList([], file_name[:3])
 
         for node in node_list:
             x = float(node.find(".//%sCartn_x" % namespace).text)
             y = float(node.find(".//%sCartn_y" % namespace).text)
             z = float(node.find(".//%sCartn_z" % namespace).text)
-            label = node.find(".//%stype_symbol" % namespace).text
+            label = node.find(".//%slabel_atom_id" % namespace).text
             symbol = label[0]
             coords = [x, y, z]
             atom = Atom(symbol, label, array(coords))
-            atom_list.add_atom(atom)
+            group = node.find(".//%sgroup_PDB" % namespace).text
+            if group == "ATOM":
+                atom_list.add_atom(atom)
 
         return atom_list
 
@@ -571,9 +816,19 @@ if __name__ == "__main__":
     p1 = PDB().get_atom_list(file_01)
     p2 = PDB().get_atom_list(file_02)
 
-    p1.align()
+    p1.print_info()
+    p2.print_info()
+
+    p1.compare(p2)
+
+    p1.print_info()
+    p2.print_info()
 
     Viewer().view(
-          p1.cube_list(0.1, BLUE)
-        + [p1.ellipsoid(RED)]
+          p1.cube_list(0.25, BLUE)
+        + p2.cube_list(0.25, RED)
+#        + [ p1.ellipsoid( BLUE ) ]
+#        + [ p2.ellipsoid( RED ) ]
+        + [ p1.convex_hull(YELLOW) ]
+        + [ p2.convex_hull(GREEN) ]
     )
