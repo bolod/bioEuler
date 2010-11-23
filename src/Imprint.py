@@ -15,7 +15,7 @@ class Imprint:
     def get_encoded_imprint_vector(self):
         return self.encoded_bio_vector
 
-    def write_on_file(self, filename):
+    def write_on_file(self, file_name):
         """
         Print imprint on file.
 
@@ -24,31 +24,26 @@ class Imprint:
         self: Imprint
 
         """
-        path_name = "./impronte/"
+        path_name = ".." + os.sep + "imprints" + os.sep
         dir = os.path.dirname(path_name)
         try:
             os.stat(dir)
         except:
             os.mkdir(dir)
-        FILE = open(path_name + filename,"w")
+        FILE = open(path_name + file_name,"w")
         FILE.write(self.encoded_bio_vector)
         FILE.close()
 
-
-
-
-
-
 def read_from_file(file_name, decoder=Decoder()):
-    path = "./impronte/"
-    file = open(path+file_name,"r")
+    path = ".." + os.sep + "imprints" + os.sep
+    file = open(path + file_name, "r")
     impr = file.read()
     file.close()
     return decoder.decode(impr)
 
-def create_vectors_from_file(filename):
+def create_vectors_from_file(file_name):
     temp = []
-    file = open(filename, "r")
+    file = open(file_name, "r")
     iter(file)
 
     for line in file:

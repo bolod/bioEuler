@@ -178,6 +178,24 @@ class Atom():
         self.coords = self.coords - translation
         return self
 
+    def scale(self, values):
+        """
+        Scales this atom by the given scale value vector.
+
+        Parameters
+        ----------
+        scale: ndarray, shape(3, )
+            the scale value vector
+
+        Returns
+        -------
+        atom : Atom
+            this atom scaled
+
+        """
+        self.coords = self.coords * scale
+        return self
+
     def get_symbol(self):
         """
         Gets the symbol of this atom.

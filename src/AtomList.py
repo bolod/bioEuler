@@ -177,6 +177,25 @@ class AtomList():
             atom.translate(translation)
         return self
 
+    def scale(self, values):
+        """
+        Scales this atom list by the given scale value vector.
+
+        Parameters
+        ----------
+        values: ndarray, shape(3, )
+            the scale value vector
+
+        Returns
+        -------
+        self : AtomList
+            this atom list scaled
+
+        """
+        for atom in self.list:
+            atom.scale(values)
+        return self
+
     def get_mass(self):
         """
         Gets the mass of this atom list.

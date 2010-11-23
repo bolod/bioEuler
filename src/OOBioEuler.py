@@ -10,7 +10,6 @@ class BioEuler:
         self.max_size_rate = max_size_ratio
         self.min_size = min_size
         self.max_euler_distance = max_euler_distance   
-
         
     def create_imprints_from_file(self, file, type, max_level=5):
 

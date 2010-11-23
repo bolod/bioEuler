@@ -32,7 +32,7 @@ class PDBReader:
             filename : file on disk
 
             """
-        path = os.getcwd()
+        path = ".." + os.sep + "imprints" + os.sep
         file = os.path.join(path, file_name)
         if os.path.exists(file):
             print "File %s already exists" % file
@@ -95,8 +95,6 @@ class PDBReader:
         coords = [float(elem.xpath("./PDBx:Cartn_x/text()")[0]), float(elem.xpath("./PDBx:Cartn_y/text()")[0]), float(elem.xpath("./PDBx:Cartn_z/text()")[0])]
         #print "x = " + elem.xpath("./PDBx:Cartn_x/text()")[0] + " y = " + elem.xpath("./PDBx:Cartn_y/text()")[0] + " z = " + elem.xpath("./PDBx:Cartn_z/text()")[0]
         return Atom(symbol, label, coords)
-
-
 
     def get_protein_from_XML(self):
         file_name = self.name + ".xml"
