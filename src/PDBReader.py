@@ -10,10 +10,11 @@ from Protein import Protein
 
 class PDBReader:
 
-    def __init__(self, pdb_id):
+    def __init__(self, pdb_id, path="."):
         self.name = pdb_id
+        self.path = path
 
-    def _get_file(self, file_name):
+    def _get_file(self, file_name, file_path):
         """
             Downloads the corresponding file of protein's code.
 
@@ -32,15 +33,14 @@ class PDBReader:
             filename : file on disk
 
             """
-        path = ".." + os.sep + "imprints" + os.sep
-        file = os.path.join(path, file_name)
+        file = os.path.join(file_path, file_name)
         if os.path.exists(file):
             print "File %s already exists" % file
         else:
             url = "http://www.rcsb.org/pdb/files/"
             print 'retrieving %s' % url + file_name
             lines = urllib.urlopen(url + file_name).read()
-            open(file_name, 'wb').write(lines)
+            open(file, 'wb').write(lines)
             print "File %s is now here %s" % (file_name, file)
 
         return file_name
@@ -54,11 +54,11 @@ class PDBReader:
 
     def get_protein_from_PDB(self):
         file_name = self.name + ".pdb"
-        self._get_file(file_name)
+        self._get_file(file_name, self.path)
 
         p = PDB.PDBParser(PERMISSIVE=1)
 
-        s = p.get_structure(self.name + "_struct", file_name)
+        s = p.get_structure(self.name + "_struct", os.path.join(self.path,file_name))
 
         allAtoms = AtomList([], file_name)
         backbone = AtomList([], file_name + '_backbone')

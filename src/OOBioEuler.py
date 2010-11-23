@@ -3,6 +3,7 @@ OOBioEuler Project
 Object Oriented BioEuler Project
 """
 from Clusterizer import *
+import os
 
 class BioEuler:
     def __init__(self, max_level=5, max_size_ratio=10, min_size=10, max_euler_distance=200000):
@@ -16,11 +17,11 @@ class BioEuler:
         list = []
         list_impt = []
         a = []
-        FILE = open(file,"r")
+        FILE = open(".." + os.sep + "config" + os.sep + file,"r")
         iter(FILE)
 
         for line in FILE:
-            pdbReader = PDBReader(line[:4])
+            pdbReader = PDBReader(line[:4], os.path.join("..","repo"))
             protein = pdbReader.get_protein_from_PDB()
             splitted_line = line.split(" ")
             name = str(splitted_line[0].strip('\n\t'))
@@ -36,7 +37,7 @@ class BioEuler:
                     i += 1
                     end = int(splitted_line[i].strip(('\n\t')))
                     i += 1
-                    atom_list.add_atom_list( protein.get_typed_atom_list(type).filter(start,end))
+                    atom_list.add_atom_list(protein.get_typed_atom_list(type).filter(start,end))
                     chain_num -= 1
             else:
                 atom_list.add_atom_list(protein.get_typed_atom_list(type))
@@ -232,7 +233,7 @@ if __name__ == "__main__":
 #    print p_01.get_backbone().get_mass()
 
     
-    bioeuler.create_imprints_from_file("init_test.txt", "B", 6)
+    bioeuler.create_imprints_from_file("init_test.txt", "B", 5)
     imp_vects = create_vectors_from_file("impronte_test.txt")
 
 
