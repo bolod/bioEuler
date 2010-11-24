@@ -43,7 +43,7 @@ def read_from_file(file_name, decoder=Decoder()):
 
 def create_vectors_from_file(file_name):
     temp = []
-    file = open(file_name, "r")
+    file = open(".." + os.sep + "config" + os.sep + file_name, "r")
     iter(file)
 
     for line in file:

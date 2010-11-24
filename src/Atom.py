@@ -178,7 +178,7 @@ class Atom():
         self.coords = self.coords - translation
         return self
 
-    def scale(self, values):
+    def scale(self, scale):
         """
         Scales this atom by the given scale value vector.
 
