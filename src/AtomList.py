@@ -245,13 +245,41 @@ class AtomList():
         """
         return array(sum([ atom.get_euler() * atom.get_mass() for atom in self.list ], axis=0))
 
+    def get_turning_radius(self):
+        """
+        Gets the turning radius values of this atom list.
+        The turning radius of the three axis are:
+        [ sqrt(I_xx / M) , sqrt(I_yy / M) , sqrt(I_zz / M) ]
+        where [ I_xx, I_yy, I_zz ] is the diagonal of the euler matrix
+        and M is the mass of this atom list.
+
+        Returns
+        -------
+        turning_radius : ndarray, shape(1, 3)
+            turning_radius of this atom list
+        """
+        return array(sqrt(diag(self.get_euler()) / self.get_mass()))
+
+    def get_turning_radius_weight(self):
+        """
+        Gets the turning radius weight of this atom list.
+        The weight is calculates as follow:
+        w = sqrt( reduce(mul, turning_radius) / sum(turning_radius))
+        
+        Returns
+        -------
+        w : Real
+        """
+        turning_radius = self.get_turning_radius()
+        return sqrt(reduce(mul, turning_radius) / sum(turning_radius))
+
     def get_size(self):
         """
         Gets the number of atoms of this atom list.
 
         Returns
         -------
-        size : ndarray, shape(3, 3)
+        size : Real
             number of atoms of this atom list
 
         """
