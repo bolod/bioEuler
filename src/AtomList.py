@@ -343,6 +343,59 @@ class AtomList():
         """
         return (abs(array([ atom.get_coords() for atom in self.list ]))).max(axis=0)
 
+    def split(self, split_coord):
+        """
+        Splits this atom list in two atom lists by omogeneous plane.
+
+        Parameters
+        ----------
+        split_coord: int {0, 1, 2}
+            the coordinate to split
+
+        Returns
+        -------
+        [first, second] : [AtomList, AtomList]
+            first AtomList has all atoms which coordinate split_coord is >= 0
+            second AtomList has all atoms which coordinate split_coord is < 0
+
+        """
+        split_list = [AtomList([], self.name + '-split_' + split_coord), AtomList([], self.name + '-split_' + split_coord)]
+        for atom in self.list:
+            split_list[atom.get_coords()[split_coord] < 0].add_atom(atom)
+        return split_list
+
+    def split_x(self):
+        """
+        Splits this atom list in two atom lists by omogeneous plane YZ.
+        
+        Returns
+        -------
+        [first, second] : [AtomList, AtomList]
+            first AtomList has all atoms which coordinate X is >= 0
+            second AtomList has all atoms which coordinate X is < 0
+        
+        """
+        split_list = [AtomList([], self.name + '-split_0'), AtomList([], self.name + '-split_0')]
+        for atom in self.list:
+            split_list[atom.get_x() < 0].add_atom(atom)
+        return split_list
+
+    def split_y(self):
+        """
+        Splits this atom list in two atom lists by omogeneous plane XZ.
+
+        Returns
+        -------
+        [first, second] : [AtomList, AtomList]
+            first AtomList has all atoms which coordinate Y is >= 0
+            second AtomList has all atoms which coordinate Y is < 0
+
+        """
+        split_list = [AtomList([], self.name + '-split_1'), AtomList([], self.name + '-split_1')]
+        for atom in self.list:
+            split_list[atom.get_y() < 0].add_atom(atom)
+        return split_list
+
     def split_z(self):
         """
         Splits this atom list in two atom lists by omogeneous plane XY.
@@ -354,7 +407,7 @@ class AtomList():
             second AtomList has all atoms which coordinate Z is < 0
 
         """
-        split_list = [AtomList([], self.name + '_split'), AtomList([], self.name + '_split')]
+        split_list = [AtomList([], self.name + '-split_2'), AtomList([], self.name + '-split_2')]
         for atom in self.list:
             split_list[atom.get_z() < 0].add_atom(atom)
         return split_list
@@ -405,11 +458,11 @@ class AtomList():
 
     def get_minmax_ca_distance(self):
         """
-	Return a max and min value of distance between two consecutive Ca atom.
+        Return a max and min value of distance between two consecutive Ca atom.
 
-	Returns
-	-------
-	manmax: (min, max)
+        Returns
+        -------
+        manmax: (min, max)
             min, min distance between two consecutive Ca atoms
             max, max distance between two consecutive Ca atoms
         """
