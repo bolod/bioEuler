@@ -1,33 +1,20 @@
 from numpy import *
 from pyplasm import *
+from AtomInfos import *
 
 class Atom():
 
     def __init__(self, symbol, label, coords=array([0.,0.,0.]), res_number=0):
-        symbol_to_mass = {
-            'C': 12.010700,
-            'N': 14.006700,
-            'O': 15.999940,
-            'S': 32.065000,
-            'H': 1.0079400,
-            'P': 30.973761,
-            'F': 18.998000}
-
-        symbol_to_radius = {
-            'C': 0.70,
-            'N': 0.65,
-            'O': 0.60,
-            'S': 1.00,
-            'H': 0.25,
-            'P': 1.00,
-            'F': 0.50}
+        
+        def symbol_to_mass(atom): return atomic_radius[atom][5]
+        def symbol_to_radius(atom): return atomic_radius[atom][1]
 
         self.symbol = symbol
         self.label = label
         self.coords = array(coords)
         self.res_number = res_number
-        self.m = symbol_to_mass[symbol]
-        self.radius = symbol_to_radius[symbol]
+        self.m = symbol_to_mass(symbol)
+        self.radius = symbol_to_radius(symbol)
 
     def __repr__(self):
         """

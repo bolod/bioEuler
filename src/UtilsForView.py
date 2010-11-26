@@ -3,6 +3,29 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
+class ProViewer():
+
+   def view(self, batches):
+        """
+        Render the given Batches
+
+        Parameters
+        ----------
+        batches: list of Batch
+            list of all of the batches to view
+
+        Returns
+        -------
+        cuboid : PLaSM cuboid
+            PLaSM cuboid with given size and coords.
+
+        """
+         # organize the batch in a loose octree
+        octree = Octree(batches)
+        # create the viewer and run it
+        viewer = Viewer(octree)
+        viewer.Run()
+
 class Plasm():
 
     def create_cube(self, coords, size=0.1, color=WHITE):
