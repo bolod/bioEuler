@@ -359,6 +359,19 @@ class AtomList():
         """
         return self.translate(self.get_masscenter()).rotate(self.get_principal_axis())
 
+        def orient(self):
+            self.align()
+            scale_values = [1, 1, 1]
+
+            for i in [0, 1, 2]:
+                [up, down] = al.split(i)
+                up_val = up.get_turning_radius_weight()
+                down_val = down.get_turning_radius_weight()
+                scale_values[i] = (up_val < down_val) * 2 - 1
+
+            print al.get_name(), scale_values
+            return al.scale(scale_values)
+
     def get_ellipsoid_axis(self):
         """
         Get ellipsoid axis.
@@ -585,6 +598,23 @@ class AtomList():
         else:
             bio_tree.set_left(bio_tree_sup)
             bio_tree.set_right(bio_tree_inf)
+
+        return bio_tree
+
+	def get_oriented_bio_tree(self, max_level=5):
+        
+        if(max_level <= 0 or self.get_size() <= 2):
+            return BioTree(None)
+
+        [atom_list_inf, atom_list_sup] = self.orient().split_z()
+        
+        bio_tree = BioTree(BioNode(self.get_euler(), self.get_mass()))
+        
+        bio_tree_inf = atom_list_inf.get_bio_tree(max_level - 1)
+        bio_tree_sup = atom_list_sup.get_bio_tree(max_level - 1)
+
+        if(bio_tree_inf.is_empty() and bio_tree_sup.is_empty()):
+            return bio_tree
 
         return bio_tree
 
