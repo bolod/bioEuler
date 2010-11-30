@@ -562,68 +562,6 @@ class AtomList():
 
         """
         return COLOR(color)(JOIN(self.plasm_cube_list(0.1, color)))
-
-
-    def get_proviewer_batches(self, color=WHITE, view_type="stick"):
-        """
-        Create a batches of this atom list.
-
-        Parameters
-        ----------
-        color : PLaSM color
-
-        viewType: string
-            ["stick" | "stick and ball" | "van der Waals"]?
-
-        Returns
-        -------
-        batches : list of batch for ProViewer viewer
-
-        """
-
-        def cylinder(p1, p2, color=WHITE, sx=0.15):
-            vect = VECTDIFF([p2,p1])
-            qz = UNITVECT(vect)
-            qx = UNITVECT(VECTPROD([ vect,[0,0,1] ]))
-            qy = VECTPROD([ qz,qx ])
-            Rot = TRANS([qx,qy,qz])
-            Rot = CAT([ Rot[0]+[0.], Rot[1]+[0.], Rot[2]+[0.], [0.,0.,0.,1.] ])
-            h = VECTNORM(vect)
-
-            batchCylinder = Batch(unitCylinder)
-            batchCylinder.matrix = Mat4f.translate(*p1) * Mat4f(*Rot) * Mat4f.scale(sx,sx,h)
-            batchCylinder.diffuse = color
-            return batchCylinder
-
-        def sphere(c, color=WHITE, sx=0.15):
-            batchSphere = Batch(unitSphere)
-            batchSphere.matrix = Mat4f.translate(*c)*Mat4f.scale(sx,sx,sx)
-            batchSphere.diffuse = color
-            return batchSphere
-
-        batches = []
-        unitCylinder = Batch.openObj("../resources/cylinder4x27.obj")[0]
-        unitSphere = Batch.openObj("../resources/sphere18x27.obj")[0]
-        ball_sx = 0.15
-
-        if (view_type == "van der Waals"):
-            for i in range(self.get_size()):
-                ball_sx = self.list[i].get_van_Der_Waals_radius()/100.
-                coords = self.list[i].get_coords()
-                batches.append(sphere(coords, color, ball_sx))
-        else:
-            if (view_type == "stick and ball"):
-                ball_sx = 0.3
-
-            for i in range(self.get_size() - 1):
-                coords1 = self.list[i].get_coords()
-                coords2 = self.list[i+1].get_coords()
-                batches.append(sphere(coords1, color, ball_sx))
-                batches.append(cylinder(coords1, coords2, color))
-
-            batches.append(sphere(self.list[self.get_size() - 1].get_coords(), color, ball_sx))
-
-        return batches
     
 
     def get_bio_tree(self, max_level=5):

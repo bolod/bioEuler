@@ -30,13 +30,100 @@ class ProViewer():
 
 class Batcher():
     
-    def __init__(self):
-       """
-       Constructor of a superclass of all Batcher allowed
-       """
-       pass 
+    def __init__(self, atom_list, color=WHITE):
+       self.atom_list = atom_list
+       self.color = color
+       self.unitCylinder = Batch.openObj("../resources/cylinder4x27.obj")[0]
+       self.unitSphere = Batch.openObj("../resources/sphere18x27.obj")[0]
 
+    def setColor(self, color):
+        self.color = color
 
+    def __sphere(self, c, color=WHITE, sx=0.15, ):
+        batchSphere = Batch(self.unitSphere)
+        batchSphere.matrix = Mat4f.translate(*c)*Mat4f.scale(sx,sx,sx)
+        batchSphere.diffuse = color
+        return batchSphere
+
+    def __cylinder(self, p1, p2, color=WHITE, sx=0.15):
+        vect = VECTDIFF([p2,p1])
+        qz = UNITVECT(vect)
+        qx = UNITVECT(VECTPROD([ vect,[0,0,1] ]))
+        qy = VECTPROD([ qz,qx ])
+        Rot = TRANS([qx,qy,qz])
+        Rot = CAT([ Rot[0]+[0.], Rot[1]+[0.], Rot[2]+[0.], [0.,0.,0.,1.] ])
+        h = VECTNORM(vect)
+
+        batchCylinder = Batch(self.unitCylinder)
+        batchCylinder.matrix = Mat4f.translate(*p1) * Mat4f(*Rot) * Mat4f.scale(sx,sx,h)
+        batchCylinder.diffuse = color
+        return batchCylinder
+
+    def __stickAndBall(self, atom_list, ball_sx, color):
+        batches = []
+        for i in range(atom_list.get_size() - 1):
+            coords1 = atom_list.list[i].get_coords()
+            coords2 = atom_list.list[i+1].get_coords()
+            batches.append(self.__sphere(coords1, color, ball_sx))
+            batches.append(self.__cylinder(coords1, coords2, color))
+        batches.append(self.__sphere(atom_list.list[self.atom_list.get_size() - 1].get_coords(), color, ball_sx))
+        return batches
+
+    def vanDerWaals(self):
+        """
+        Create batches in the van Der Waals radii type visualization.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        batches : list of batch for ProViewer viewer
+
+        """
+
+        batches = []
+        ball_sx = 0.15
+        for atom in self.atom_list.list:
+            ball_sx = atom.get_van_Der_Waals_radius()/100.
+            coords = atom.get_coords()
+            batches.append(self.__sphere(coords, self.color, ball_sx))
+        return batches
+
+    def stick(self):
+        """
+        Create batches in the van stick type visualization.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        batches : list of batch for ProViewer viewer
+
+        """
+
+        ball_sx = 0.15
+        return self.__stickAndBall(self.atom_list, ball_sx, self.color)
+
+    def stickAndBall(self):
+        """
+        Create batches in the van stick and ball type visualization.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        batches : list of batch for ProViewer viewer
+
+        """
+
+        ball_sx = 0.3
+        return self.__stickAndBall(self.atom_list, ball_sx, self.color)
 
 class Plasm():
 

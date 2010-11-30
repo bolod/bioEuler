@@ -1,4 +1,4 @@
-from UtilsForView import ProViewer
+from UtilsForView import ProViewer, Batcher
 import os
 from PDBReader import PDBReader
 from AtomList import *
@@ -59,45 +59,22 @@ if __name__ == "__main__":
 
     pv = ProViewer()
 
+    b_bb_1 = Batcher(al_backbone1, GREEN)
+    b_bb_2 = Batcher(al_backbone2, RED)
+
+    b_aa_1 = Batcher(all_atoms1, GREEN)
+    b_aa_2 = Batcher(all_atoms2, RED)
+    pv.view(b_aa_1.vanDerWaals() + b_aa_2.vanDerWaals())    
+
     for s in ss:
         print '##########', s, '##########'
         al_backbone2.scale(s)
-        pv.view(all_atoms1.get_proviewer_batches(GREEN, "van der Waals") +
-        all_atoms2.get_proviewer_batches(RED, "van der Waals"))
+        pv.view(b_bb_1.stickAndBall() + b_bb_2.stickAndBall())
         al_backbone2.scale(s)
 
-#    pv.view(al_backbone1.get_proviewer_batches(GREEN, "stick and ball") +
-#        al_backbone2.get_proviewer_batches(RED, "stick and ball"))
+    pv.view(al_backbone1.get_proviewer_batches(GREEN, "stick and ball") +
+        al_backbone2.get_proviewer_batches(RED, "stick and ball"))
 
     
 
 
-
-#    s = STRUCT(
-#        [al_backbone1.plasm_polyline(RED)]
-#
-#        + [ al_backbone2.plasm_polyline(GREEN)]
-#    )
-#
-#    VIEW(s)
-
-#    ss = [[-1, -1, -1],
-#    	  [1, -1, -1],
-#    	  [-1, 1, -1],
-#    	  [1, 1, -1],
-#    	  [-1, -1, 1],
-#    	  [1, -1, 1],
-#    	  [-1, 1, 1],
-#    	  [1, 1, 1]]
-#
-#
-#
-#
-#    for s in ss:
-#        s = STRUCT(
-#            [al_backbone1.plasm_polyline(RED)]
-#
-#            + [ S([1,2,3])(s)(al_backbone2.plasm_polyline(GREEN))]
-#        )
-#
-#        VIEW(s)
