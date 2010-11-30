@@ -65,17 +65,21 @@ class PDBReader:
         splitted_backbone = []
         CA_backbone = AtomList([], file_name + '_CA_backbone')
         CA_splitted_backbone = []
+        chains = []
 
         ppb = PDB.Polypeptide.PPBuilder()
         #consideriamo solamente il primo modello tra quelli presenti nel file
         for pp in ppb.build_peptides(s[0]):
             CA_splitted_backbone.append(AtomList([]))
             splitted_backbone.append(AtomList([]))
+            chains.append(AtomList([]))
             for res in pp:
                 for pdb_atom in res.get_unpacked_list():
                     if not(pdb_atom.is_disordered()) or (pdb_atom.is_disordered() and pdb_atom.altloc == 'A'):
                         res_number = res.get_id()[1]
-                        allAtoms.add_atom(self._create_Atom(pdb_atom, res_number))
+                        app_atom = self._create_Atom(pdb_atom, res_number)
+                        allAtoms.add_atom(app_atom)
+                        chains[-1].add_atom(app_atom)
                         if (pdb_atom.get_name() == 'CA'):
                             CA_backbone.add_atom(self._create_Atom(pdb_atom, res_number))
                             CA_splitted_backbone[-1].add_atom(self._create_Atom(pdb_atom, res_number))
@@ -87,7 +91,7 @@ class PDBReader:
                             splitted_backbone[-1].add_atom(self._create_Atom(res["CA"], res_number))
                             splitted_backbone[-1].add_atom(self._create_Atom(res["C"], res_number))
 
-        return Protein(self.name, allAtoms, backbone, splitted_backbone, CA_backbone, CA_splitted_backbone)
+        return Protein(self.name, allAtoms, chains, backbone, splitted_backbone, CA_backbone, CA_splitted_backbone)
 
     def _get_Atom_from_lxml_element(self, elem):
         label = elem.xpath("./PDBx:label_atom_id/text()")[0]

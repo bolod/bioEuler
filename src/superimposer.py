@@ -28,8 +28,12 @@ if __name__ == "__main__":
     #prot1 = '1xwc'   #the first protein
     #prot2 = '3trx'   #the second protein
 
-    prot1 = '2vb1'   #the first protein
-    prot2 = '1alc'   #the second protein
+    #prot1 = '2vb1'   #the first protein
+    #prot2 = '1alc'   #the second protein
+
+    prot1 = '1bb0'   #the first protein
+    prot2 = '2drp'   #the second protei
+
 
     #prot1
     pdbReader = PDBReader(prot1, repo)
@@ -39,11 +43,11 @@ if __name__ == "__main__":
     pdbReader = PDBReader(prot2, repo)
     protein2 = pdbReader.get_protein_from_PDB()
 
-    al_backbone1 = protein1.get_backbone().align()
-    al_backbone2 = protein2.get_splitted_backbone()[0].align()
+    al_backbone1 = orient(protein1.get_splitted_backbone()[0])
+    al_backbone2 = orient(protein2.get_splitted_backbone()[0])
 
-    all_atoms1 = protein1.get_all_atoms().align()
-    all_atoms2 = protein2.get_all_atoms().align()
+    comp_p1 = protein1.get_chain(0).align()
+    comp_p2 = protein2.get_chain('A').align()
 
 
 
@@ -62,18 +66,15 @@ if __name__ == "__main__":
     b_bb_1 = Batcher(al_backbone1, GREEN)
     b_bb_2 = Batcher(al_backbone2, RED)
 
-    b_aa_1 = Batcher(all_atoms1, GREEN)
-    b_aa_2 = Batcher(all_atoms2, RED)
-    pv.view(b_aa_1.vanDerWaals() + b_aa_2.vanDerWaals())    
+    b_acA_1 = Batcher(comp_p1, GREEN)
+    b_acA_2 = Batcher(comp_p2, RED)
+    pv.view(b_acA_1.vanDerWaals() + b_acA_2.vanDerWaals())    
 
     for s in ss:
         print '##########', s, '##########'
         al_backbone2.scale(s)
         pv.view(b_bb_1.stickAndBall() + b_bb_2.stickAndBall())
         al_backbone2.scale(s)
-
-    pv.view(al_backbone1.get_proviewer_batches(GREEN, "stick and ball") +
-        al_backbone2.get_proviewer_batches(RED, "stick and ball"))
 
     
 
