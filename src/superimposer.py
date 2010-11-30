@@ -28,8 +28,8 @@ if __name__ == "__main__":
     #prot1 = '1xwc'   #the first protein
     #prot2 = '3trx'   #the second protein
 
-    prot1 = '1BBO'   #the first protein
-    prot2 = '2DRP'   #the second protein
+    prot1 = '2vb1'   #the first protein
+    prot2 = '1alc'   #the second protein
 
     #prot1
     pdbReader = PDBReader(prot1, repo)
@@ -39,8 +39,11 @@ if __name__ == "__main__":
     pdbReader = PDBReader(prot2, repo)
     protein2 = pdbReader.get_protein_from_PDB()
 
-    al_backbone1 = orient(protein1.get_backbone())
-    al_backbone2 = orient(protein2.get_splitted_backbone()[0])
+    al_backbone1 = protein1.get_backbone().align()
+    al_backbone2 = protein2.get_splitted_backbone()[0].align()
+
+    all_atoms1 = protein1.get_all_atoms().align()
+    all_atoms2 = protein2.get_all_atoms().align()
 
 
 
@@ -57,10 +60,10 @@ if __name__ == "__main__":
     pv = ProViewer()
 
     for s in ss:
-        print s
+        print '##########', s, '##########'
         al_backbone2.scale(s)
-        pv.view(al_backbone1.get_proviewer_batches(GREEN) +
-        al_backbone2.get_proviewer_batches(RED))
+        pv.view(all_atoms1.get_proviewer_batches(GREEN, "van der Waals") +
+        all_atoms2.get_proviewer_batches(RED, "van der Waals"))
         al_backbone2.scale(s)
 
 #    pv.view(al_backbone1.get_proviewer_batches(GREEN, "stick and ball") +

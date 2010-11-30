@@ -33,15 +33,15 @@ class PDBReader:
             filename : file on disk
 
             """
-        file = os.path.join(file_path, file_name)
-        if os.path.exists(file):
-            print "File %s already exists" % file
+        file_p_n = os.path.join(file_path, file_name)
+        if os.path.exists(file_p_n):
+            print "File %s already exists" % file_p_n
         else:
             url = "http://www.rcsb.org/pdb/files/"
             print 'retrieving %s' % url + file_name
             lines = urllib.urlopen(url + file_name).read()
-            open(file, 'wb').write(lines)
-            print "File %s is now here %s" % (file_name, file)
+            open(file_p_n, 'wb').write(lines)
+            print "File %s is now here %s" % (file_name, file_p_n)
 
         return file_name
 

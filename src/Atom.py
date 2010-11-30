@@ -8,6 +8,7 @@ class Atom():
         
         def symbol_to_mass(atom): return atomic_radius[atom][5]
         def symbol_to_radius(atom): return atomic_radius[atom][1]
+        def symbol_to_van_Der_Waals_radius(atom): return atomic_radius[atom][4]
 
         self.symbol = symbol
         self.label = label
@@ -15,6 +16,7 @@ class Atom():
         self.res_number = res_number
         self.m = symbol_to_mass(symbol)
         self.radius = symbol_to_radius(symbol)
+        self.van_Der_Waals_radius = symbol_to_van_Der_Waals_radius(symbol)
 
     def __repr__(self):
         """
@@ -100,15 +102,27 @@ class Atom():
 
     def get_radius(self):
         """
-        Gets the x coordinate of this atom.
+        Gets the radius of this atom.
 
         Returns
         -------
         x : float
-            x coord of this atom
+            radius of this atom
 
         """
         return self.radius
+
+    def get_van_Der_Waals_radius(self):
+        """
+        Gets the van Der Waals radius of this atom.
+
+        Returns
+        -------
+        x : float
+            van Der Waals radius of this atom.
+
+        """
+        return self.van_Der_Waals_radius
 
     def get_res_number(self):
         return self.res_number

@@ -573,7 +573,7 @@ class AtomList():
         color : PLaSM color
 
         viewType: string
-            ["stick" | "stick and ball"]?
+            ["stick" | "stick and ball" | "van der Waals"]?
 
         Returns
         -------
@@ -606,16 +606,22 @@ class AtomList():
         unitSphere = Batch.openObj("../resources/sphere18x27.obj")[0]
         ball_sx = 0.15
 
-        if (view_type == "stick and ball"):
-            ball_sx = 0.3
+        if (view_type == "van der Waals"):
+            for i in range(self.get_size()):
+                ball_sx = self.list[i].get_van_Der_Waals_radius()/100.
+                coords = self.list[i].get_coords()
+                batches.append(sphere(coords, color, ball_sx))
+        else:
+            if (view_type == "stick and ball"):
+                ball_sx = 0.3
 
-        for i in range(self.get_size() - 1):
-            coords1 = self.list[i].get_coords()
-            coords2 = self.list[i+1].get_coords()
-            batches.append(sphere(coords1, color, ball_sx))
-            batches.append(cylinder(coords1, coords2, color))
+            for i in range(self.get_size() - 1):
+                coords1 = self.list[i].get_coords()
+                coords2 = self.list[i+1].get_coords()
+                batches.append(sphere(coords1, color, ball_sx))
+                batches.append(cylinder(coords1, coords2, color))
 
-        batches.append(sphere(self.list[self.get_size() - 1].get_coords(), color, ball_sx))
+            batches.append(sphere(self.list[self.get_size() - 1].get_coords(), color, ball_sx))
 
         return batches
     

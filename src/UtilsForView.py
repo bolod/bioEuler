@@ -4,7 +4,9 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 class ProViewer():
-
+   def __init__(self):
+      pass 
+    
    def view(self, batches):
         """
         Render the given Batches
@@ -25,6 +27,16 @@ class ProViewer():
         # create the viewer and run it
         viewer = Viewer(octree)
         viewer.Run()
+
+class Batcher():
+    
+    def __init__(self):
+       """
+       Constructor of a superclass of all Batcher allowed
+       """
+       pass 
+
+
 
 class Plasm():
 
