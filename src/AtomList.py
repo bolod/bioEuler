@@ -626,8 +626,11 @@ class AtomList():
 
         return bio_tree
 
-    def get_imprint(self, max_level):
-        return Imprint(self.get_bio_tree(max_level))
+    def get_imprint(self, max_level, oriented=False):
+        if oriented:
+            return Imprint(self.get_oriented_bio_tree(max_level))
+        else:
+            return Imprint(self.get_bio_tree(max_level))
 
     def filter(self, start_res_number=0, end_res_number=0):
         if start_res_number == 0 and end_res_number == 0:
