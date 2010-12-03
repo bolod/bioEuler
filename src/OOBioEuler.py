@@ -12,7 +12,7 @@ class BioEuler:
         self.min_size = min_size
         self.max_euler_distance = max_euler_distance   
         
-    def create_imprints_from_file(self, file, type, max_level=5):
+    def create_imprints_from_file(self, file, type, max_level=5, oriented=True):
 
         list = []
         list_impt = []
@@ -47,7 +47,7 @@ class BioEuler:
         FILE.close()
 
         for atom_list in list:
-            impt = atom_list.get_imprint(max_level)
+            impt = atom_list.get_imprint(max_level, oriented)
             list_impt.append(impt)
             name_file = atom_list.get_name() + "." + type + "im"
             impt.write_on_file(name_file)
@@ -233,7 +233,7 @@ if __name__ == "__main__":
 #    print p_01.get_backbone().get_mass()
 
     
-    bioeuler.create_imprints_from_file("init_test.txt", "B", 5)
+    bioeuler.create_imprints_from_file("init_test.txt", "A", 6)
     imp_vects = create_vectors_from_file("impronte_test.txt")
 
 

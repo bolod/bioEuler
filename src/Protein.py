@@ -1,8 +1,9 @@
 class Protein:
 
-    def __init__(self, name, all_atoms, backbone, splitted_backbone, CA_backbone, CA_splitted_backbone):
+    def __init__(self, name, all_atoms, chains, backbone, splitted_backbone, CA_backbone, CA_splitted_backbone):
         self.name = name
         self.all_atoms = all_atoms
+        self.chains = chains
         self.backbone = backbone
         self.splitted_backbone = splitted_backbone
         self.CA_backbone = CA_backbone
@@ -25,6 +26,15 @@ class Protein:
         
     def get_all_atoms(self):
         return self.all_atoms
+
+    def get_chains(self):
+        return self.chains
+    
+    def get_chain(self, number):
+        i = number
+        if str(number).isalpha():
+            i = ord(number) - ord('A')
+        return self.chains[i]
 
     def get_backbone(self):
         return self.backbone
