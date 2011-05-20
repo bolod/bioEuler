@@ -4,10 +4,6 @@ import sys
 from Bio.PDB.PDBParser import PDBParser
 from numpy import *
 
-current_path = os.path.dirname(sys.argv[0])
-pdb_path = current_path + '/../pdb/'
-pdb_file_name = '1alc'
-
 def get_structure(name):
 	parser = PDBParser()
 	structure = parser.get_structure(name, pdb_path + name + '.pdb')
@@ -76,17 +72,27 @@ def split_backbone(backbone):
 		previous = atom
 	return list
 
-structure = get_structure(pdb_file_name)
-backbone = get_structure_backbone(structure)
-euler = get_backbone_euler(backbone)
 
-backbone = translate_backbone(backbone)
-backbone = orient_backbone(backbone)
 
-print_backbone(backbone)
-print '\n\n\n'
+if __name__ == "__main__":
 
-backbone_list = split_backbone(backbone)
-for backbone in backbone_list:
-	print '***'
+	current_path = os.path.dirname(sys.argv[0])
+	pdb_path = current_path + '/../pdb/'
+	pdb_file_name = '1alc'
+
+	structure = get_structure(pdb_file_name)
+	backbone = get_structure_backbone(structure)
+	euler = get_backbone_euler(backbone)
+
+	backbone = translate_backbone(backbone)
+	backbone = orient_backbone(backbone)
+
+	print '1alc oriented backbone'
 	print_backbone(backbone)
+	print '\n'
+
+	print '1alc splitted backbone'
+	backbone_list = split_backbone(backbone)
+	for backbone in backbone_list:
+		print '***'
+		print_backbone(backbone)
