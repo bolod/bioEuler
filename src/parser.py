@@ -65,7 +65,16 @@ def print_backbone(backbone):
 	print get_backbone_centroid(backbone)
 
 def split_backbone(backbone):
-	pass
+	list = [[]]
+	n = 0
+	previous = backbone[0]
+	for atom in backbone:
+		if previous.get_coord()[2] * atom.get_coord()[2] < 0:
+			list.append([])
+			n += 1
+		list[n].append(atom)
+		previous = atom
+	return list
 
 structure = get_structure(pdb_file_name)
 backbone = get_structure_backbone(structure)
@@ -75,3 +84,9 @@ backbone = translate_backbone(backbone)
 backbone = orient_backbone(backbone)
 
 print_backbone(backbone)
+print '\n\n\n'
+
+backbone_list = split_backbone(backbone)
+for backbone in backbone_list:
+	print '***'
+	print_backbone(backbone)
