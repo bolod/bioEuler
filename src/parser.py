@@ -72,8 +72,6 @@ def split_backbone(backbone):
 		previous = atom
 	return list
 
-
-
 if __name__ == "__main__":
 
 	current_path = os.path.dirname(sys.argv[0])
